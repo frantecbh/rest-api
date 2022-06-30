@@ -7,8 +7,21 @@ module.exports = {
 
         const produtos = await prisma.produto.findMany()
 
+        const response = {
+
+            produtos,
+            quantidade: produtos.length,
+            request: {
+                tipo: 'GET',
+                descricao: 'Retorna todo os produtos',
+                url: `http://localhost:3001/api/listproduto/${produtos.id}`
+            }
+
+
+        }
+
         res.status(200).json({
-            produtos
+            response
         })
     },
 
@@ -25,9 +38,21 @@ module.exports = {
         if (!produto) {
             return res.status(400).json({ message: 'Product does not exists!' })
         }
+        const response = {
+            status: "Produto criado com sucesso!",
+            produto,
+            request: {
+                tipo: 'GET',
+                descricao: 'Retorna o produto criado',
+                url: `http://localhost:3001/api/listproduto/${produto.id}`
+            }
+
+        }
 
 
-        res.status(200).json({ produto: produto })
+
+
+        res.status(200).json({ response })
 
 
 
@@ -52,27 +77,30 @@ module.exports = {
                 return res.status(400).json({ message: 'Product already exists!' })
             }
 
-
-
             const produto = await prisma.produto.create({
                 data: {
                     nome,
                     preco,
 
                 },
-                select: {
-                    id: true,
-                    nome: true,
-                    preco: true,
-                    created_at: true,
 
-
-                }
 
 
             })
 
-            return res.status(201).json({ produtos: produto })
+            const response = {
+                message: "Produto criado com sucesso!",
+                produto,
+                request: {
+                    tipo: 'POST',
+                    descricao: 'Retorna o produto criado',
+                    url: `http://localhost:3001/api/listprodutos`
+                }
+
+
+            }
+
+            return res.status(201).json({ response })
 
         } catch (error) {
 
@@ -101,7 +129,7 @@ module.exports = {
             })
 
             if (!produto) {
-                return res.status(400).json({ message: 'Product does not exists!' })
+                return res.status(404).json({ message: 'Product does not exists!' })
             }
 
             const updateProduto = await prisma.produto.update({
@@ -114,7 +142,18 @@ module.exports = {
                 },
             })
 
-            return res.status(202).json({ produto: updateProduto })
+            const response = {
+                message: 'Produto atualizado com sucesso',
+                produto: updateProduto,
+                request: {
+                    type: 'GET',
+                    description: 'Retorna os detalhes de um produto específico',
+                    url: `http://localhost:3001/api/listproduto/${produto.id}`
+
+
+                }
+            }
+            return res.status(202).json({ response })
 
 
 
@@ -151,7 +190,24 @@ module.exports = {
                 }
             })
 
-            return res.status(202).json({ message: "Produto deletado com sucesso!" })
+
+            const response = {
+                message: 'Produto removido com sucesso',
+                request: {
+                    type: 'POST',
+                    description: 'Insere um produto',
+                    url: `http://localhost:3001/api/createproduto`,
+                    body: {
+                        nome: 'String',
+                        preco: 'Number'
+                    }
+                }
+            }
+            return res.status(202).json({ response });
+
+
+
+            // return res.status(202).json({ message: "Produto deletado com sucesso!" })
 
 
 
